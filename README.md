@@ -44,10 +44,66 @@ This repository was separated from execution-boundary to:
 2. **Development Velocity:** Enable rapid iteration on runtime implementations without affecting specification stability
 3. **Layer Isolation:** Maintain clear separation between specification (what) and implementation (how)
 
+## OpenClaw Intercept Demo
+
+This repository includes a demonstration of **OpenClaw tool call interception** at the execution boundary layer.
+
+### Flow Diagram
+
+```
+OpenClaw Tool Call
+       ↓
+   Adapter (receiveToolCall)
+       ↓
+   EAR Decision Engine
+       ↓
+   Decision: STOP / HOLD / ALLOW
+       ↓
+   [If STOP] → Proof Artifact Generated
+       ↓
+   Denied Response (Execution Blocked)
+```
+
+### Key Components
+
+- **`integrations/openclaw/openclaw_adapter.ts`** - Intercepts OpenClaw tool_call payloads
+- **`integrations/openclaw/decision_engine.ts`** - Evaluates risk and returns verdict
+- **`proof/openclaw_intercept/decision_logger.ts`** - Logs decisions with `source: "openclaw_mock"` and `intercepted: true`
+- **`demo/openclaw_intercept_demo.ts`** - Demonstrates interception with dangerous scenarios
+
+### Running the Demo
+
+```bash
+npx ts-node demo/openclaw_intercept_demo.ts
+```
+
+### Example Scenarios
+
+1. **delete_server_files** → STOP (Forbidden action)
+2. **reverse_shell** → STOP (Forbidden action)
+3. **deploy_production** → HOLD (Requires approval)
+4. **read_config** → ALLOW (Safe action)
+5. **High-risk arguments** → STOP (Risk score exceeds threshold)
+
+### Proof Artifacts
+
+All intercepted decisions are logged to:
+- `proof/openclaw_intercept/openclaw_decisions.jsonl` - JSONL decision log
+- `proof/openclaw_intercept/proof_manifest.json` - Proof manifest with `intercepted: true`
+
+### Architecture Note
+
+**This demo does NOT modify OpenClaw source code.**
+
+The interception occurs **externally** as a pre-execution layer. OpenClaw generates tool calls normally, but the adapter intercepts them before execution and enforces EAR decision verdicts.
+
+---
+
 ## Related Repositories
 
 - **Specification:** [execution-boundary](https://github.com/Nick-heo-eg/execution-boundary) - RC2_STRICT_ALIGNED baseline
 - **Runtime Lab:** [execution-runtime-lab](https://github.com/Nick-heo-eg/execution-runtime-lab) - Implementation workspace (this repo)
+- **Private Core:** [execution-runtime-core](https://github.com/Nick-heo-eg/execution-runtime-core) - Private enforcement engine
 
 ## History
 

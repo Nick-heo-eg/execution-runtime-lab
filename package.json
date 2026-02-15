@@ -1,0 +1,25 @@
+{
+  "name": "execution-runtime-lab",
+  "version": "1.0.0",
+  "description": "Runtime implementation experimentation for Execution Authority Runtime",
+  "type": "module",
+  "scripts": {
+    "demo:openclaw": "npx ts-node demo/openclaw_intercept_demo.ts",
+    "proof:generate": "tsx proof/generate_proof_artifact.ts",
+    "test": "jest"
+  },
+  "keywords": [
+    "execution-authority-runtime",
+    "openclaw",
+    "runtime-mediation",
+    "decision-logging"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}
