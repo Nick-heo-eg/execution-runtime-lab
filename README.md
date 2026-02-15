@@ -4,9 +4,85 @@
 
 > **Runtime Implementation Experimentation Repository** — Separated from specification layer.
 
+## Execution Intercept Guarantee
+
+**If `decision === STOP`, execution path does not exist.**
+
+Code path: Adapter blocks before executor binding. STOP verdicts return immediately with `executed: false` — no execution function is imported or called.
+
+---
+
+## Type-Level Structural Execution Nullification
+
+**STOP verdict does not block execution — it removes execution capability at the type system level.**
+
+### Compile-Time Enforcement
+
+STOP/HOLD states cannot compile execution paths. TypeScript's conditional types enforce `execute?: never`, making it **impossible** to call `execute()` on forbidden verdicts.
+
+```typescript
+const stopResult: ExecutionCapability<'STOP'> = {...};
+stopResult.execute(); // ❌ Compile error: Property 'execute' does not exist
+```
+
+**Not runtime blocking. Not dynamic checking. Compile-time impossibility.**
+
+### Verification
+
+```bash
+# Type check enforcement (must pass in CI)
+npx tsc --noEmit
+
+# See proof documentation
+cat proof/STRUCTURAL_TYPE_NULLIFICATION_PROOF.md
+```
+
+**Runtime Contract:** `EAR_INTERCEPT_v2` with `structural_type_nullification: true`
+
+---
+
+## Binary-Level Structural Absence
+
+**STOP builds do not contain executor bytecode.**
+
+### Physical Module Separation
+
+This runtime enforces binary-level separation: STOP/HOLD builds physically exclude executor modules from compiled output.
+
+```bash
+# Build STOP variant (no executor code)
+npm run build:stop
+
+# Verify binary absence
+grep -r "executeAction" dist/stop
+# Expected: (no output - 0 matches)
+
+ls dist/stop/src/executor
+# Expected: No such file or directory
+```
+
+**Not dead code elimination. Not tree-shaking. Physical module exclusion.**
+
+### Deployment Implications
+
+Organizations enforcing STOP-only verdicts can deploy **only** the STOP build — a binary artifact that physically cannot execute actions because executor code does not exist.
+
+| Build | Contains Executor | Use Case |
+|-------|-------------------|----------|
+| `dist/stop` | ❌ No | STOP/HOLD enforcement, zero execution capability |
+| `dist/runtime` | ✅ Yes | Full STOP/HOLD/ALLOW capability |
+
+**Security Guarantee:** Even if an attacker compromises the runtime, no executor bytecode exists to invoke. Binary absence, not runtime blocking.
+
+**Verification:** See `proof/BINARY_ABSENCE_PROOF.md`
+
+---
+
 ## Overview
 
 This repository contains runtime implementation components for the Execution Authority Runtime (EAR) ecosystem, separated from the [execution-boundary](https://github.com/Nick-heo-eg/execution-boundary) specification repository.
+
+**STOP is not a rejection state. It is a structural absence of execution.**
 
 **Purpose:**
 - Runtime implementation experimentation
@@ -44,10 +120,75 @@ This repository was separated from execution-boundary to:
 2. **Development Velocity:** Enable rapid iteration on runtime implementations without affecting specification stability
 3. **Layer Isolation:** Maintain clear separation between specification (what) and implementation (how)
 
+## OpenClaw Intercept Demo
+
+This repository includes a demonstration of **OpenClaw tool call interception** at the execution boundary layer.
+
+### Flow Diagram
+
+```
+OpenClaw Tool Call
+       ↓
+   Adapter (receiveToolCall)
+       ↓
+   EAR Decision Engine
+       ↓
+   Decision: STOP / HOLD / ALLOW
+       ↓
+   [If STOP] → Proof Artifact Generated
+       ↓
+   Denied Response (Execution Blocked)
+```
+
+### Key Components
+
+- **`integrations/openclaw/openclaw_adapter.ts`** - Intercepts OpenClaw tool_call payloads
+- **`integrations/openclaw/decision_engine.ts`** - Evaluates risk and returns verdict
+- **`proof/openclaw_intercept/decision_logger.ts`** - Logs decisions with `source: "openclaw_mock"` and `intercepted: true`
+- **`demo/openclaw_intercept_demo.ts`** - Demonstrates interception with dangerous scenarios
+
+### Running the Demo
+
+```bash
+npx ts-node demo/openclaw_intercept_demo.ts
+```
+
+### Example Scenarios
+
+1. **delete_server_files** → STOP (Forbidden action)
+2. **reverse_shell** → STOP (Forbidden action)
+3. **deploy_production** → HOLD (Requires approval)
+4. **read_config** → ALLOW (Safe action)
+5. **High-risk arguments** → STOP (Risk score exceeds threshold)
+
+### Proof Artifacts
+
+All intercepted decisions are logged to:
+- `proof/openclaw_intercept/openclaw_decisions.jsonl` - JSONL decision log
+- `proof/openclaw_intercept/proof_manifest.json` - Proof manifest with `intercepted: true`
+
+### Architecture Note
+
+**This demo does NOT modify OpenClaw source code.**
+
+The interception occurs **externally** as a pre-execution layer. OpenClaw generates tool calls normally, but the adapter intercepts them before execution and enforces EAR decision verdicts.
+
+### Test Layer Independence
+
+**OpenClaw Intercept Demo** and **Adversarial Verification Tests** are independent layers:
+
+- **Adversarial Tests:** Verify runtime invariants and attack resistance (see `adversarial-proof.yml`)
+- **OpenClaw Intercept:** Demonstrates external tool call interception (this demo)
+
+Both layers coexist without modification to each other. Adversarial tests focus on runtime guarantees, while OpenClaw intercept demonstrates pre-execution mediation at the tool call boundary.
+
+---
+
 ## Related Repositories
 
 - **Specification:** [execution-boundary](https://github.com/Nick-heo-eg/execution-boundary) - RC2_STRICT_ALIGNED baseline
 - **Runtime Lab:** [execution-runtime-lab](https://github.com/Nick-heo-eg/execution-runtime-lab) - Implementation workspace (this repo)
+- **Private Core:** [execution-runtime-core](https://github.com/Nick-heo-eg/execution-runtime-core) - Private enforcement engine
 
 ## History
 
