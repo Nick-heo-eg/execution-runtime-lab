@@ -11,6 +11,7 @@
 
 import { evaluateDecision, Decision, DecisionInput } from './decision_engine';
 import { logOpenClawDecision } from '../../proof/openclaw_intercept/decision_logger';
+import { ExecutionCapability, DecisionResult } from '../../src/types/execution_capability';
 
 export interface OpenClawToolCall {
   tool_name: string;
@@ -22,6 +23,7 @@ export interface OpenClawToolCall {
   };
 }
 
+// Legacy interface - replaced by ExecutionCapability
 export interface InterceptResult {
   decision: 'STOP' | 'HOLD' | 'ALLOW';
   proof_path?: string;
@@ -31,13 +33,13 @@ export interface InterceptResult {
 }
 
 /**
- * Receives OpenClaw tool call and enforces EAR decision
+ * Receives OpenClaw tool call and enforces EAR decision with type-level execution nullification
  * @param payload - OpenClaw tool_call object
- * @returns InterceptResult with decision, proof path, and execution status
+ * @returns DecisionResult with verdict-dependent execution capability
  */
 export async function receiveToolCall(
   payload: OpenClawToolCall
-): Promise<InterceptResult> {
+): Promise<DecisionResult> {
   // Convert OpenClaw tool_call to EAR DecisionInput format
   const decisionInput: DecisionInput = {
     action: payload.tool_name,
@@ -54,6 +56,7 @@ export async function receiveToolCall(
   const decision: Decision = await evaluateDecision(decisionInput);
 
   // If STOP verdict, block execution and generate proof artifact
+  // Type system enforces: execute property CANNOT exist
   if (decision.verdict === 'STOP') {
     const proofPath = await logOpenClawDecision({
       input: decisionInput,
@@ -63,15 +66,18 @@ export async function receiveToolCall(
     });
 
     return {
-      decision: 'STOP',
+      verdict: 'STOP',
       proof_path: proofPath,
       decision_hash: decision.decision_hash,
       reason: decision.reason,
       executed: false,
+      blocked_at_compile_time: true,
+      // execute property does NOT exist - enforced by ExecutionCapability<'STOP'>
     };
   }
 
   // HOLD verdict - requires external approval
+  // Type system enforces: execute property CANNOT exist
   if (decision.verdict === 'HOLD') {
     const proofPath = await logOpenClawDecision({
       input: decisionInput,
@@ -81,16 +87,18 @@ export async function receiveToolCall(
     });
 
     return {
-      decision: 'HOLD',
+      verdict: 'HOLD',
       proof_path: proofPath,
       decision_hash: decision.decision_hash,
       reason: decision.reason || 'External approval required',
       executed: false,
+      requires_approval: true,
+      // execute property does NOT exist - enforced by ExecutionCapability<'HOLD'>
     };
   }
 
-  // ALLOW verdict - execution may proceed (but NOT executed here)
-  // This adapter only intercepts and returns decision
+  // ALLOW verdict - execution capability exists
+  // Type system enforces: execute property MUST exist
   const proofPath = await logOpenClawDecision({
     input: decisionInput,
     decision,
@@ -99,10 +107,20 @@ export async function receiveToolCall(
   });
 
   return {
-    decision: 'ALLOW',
+    verdict: 'ALLOW',
     proof_path: proofPath,
     decision_hash: decision.decision_hash,
-    executed: false, // Adapter does not execute, only intercepts
+    reason: decision.reason || 'Execution allowed',
+    executed: false,
+    // execute function EXISTS - enforced by ExecutionCapability<'ALLOW'>
+    execute: async () => {
+      // Mock execution implementation
+      // In production, this would invoke actual OpenClaw tool execution
+      return {
+        success: true,
+        result: { tool_name: payload.tool_name, status: 'executed' },
+      };
+    },
   };
 }
 

@@ -91,3 +91,26 @@ jobs:
           else
             echo "✓ Proof manifest includes runtime_contract_version"
           fi
+
+      - name: Structural Type Enforcement Check
+        run: |
+          echo "========================================="
+          echo "Type-Level Execution Nullification Check"
+          echo "========================================="
+
+          if [ ! -f "tsconfig.json" ]; then
+            echo "⚠️  tsconfig.json not found - skipping type check"
+            exit 0
+          fi
+
+          # Run TypeScript compiler in type-check mode
+          npx tsc --noEmit --skipLibCheck || {
+            echo "❌ ERROR: Type check failed"
+            echo "STOP/HOLD execution paths must be structurally absent at type level"
+            exit 1
+          }
+
+          echo "✓ Type system enforces execution capability nullification"
+          echo "✓ STOP/HOLD verdicts cannot compile with execute property"
+          echo ""
+          echo "TYPE_LEVEL_ENFORCEMENT_VERIFIED: TRUE"

@@ -12,6 +12,35 @@ Code path: Adapter blocks before executor binding. STOP verdicts return immediat
 
 ---
 
+## Type-Level Structural Execution Nullification
+
+**STOP verdict does not block execution — it removes execution capability at the type system level.**
+
+### Compile-Time Enforcement
+
+STOP/HOLD states cannot compile execution paths. TypeScript's conditional types enforce `execute?: never`, making it **impossible** to call `execute()` on forbidden verdicts.
+
+```typescript
+const stopResult: ExecutionCapability<'STOP'> = {...};
+stopResult.execute(); // ❌ Compile error: Property 'execute' does not exist
+```
+
+**Not runtime blocking. Not dynamic checking. Compile-time impossibility.**
+
+### Verification
+
+```bash
+# Type check enforcement (must pass in CI)
+npx tsc --noEmit
+
+# See proof documentation
+cat proof/STRUCTURAL_TYPE_NULLIFICATION_PROOF.md
+```
+
+**Runtime Contract:** `EAR_INTERCEPT_v2` with `structural_type_nullification: true`
+
+---
+
 ## Overview
 
 This repository contains runtime implementation components for the Execution Authority Runtime (EAR) ecosystem, separated from the [execution-boundary](https://github.com/Nick-heo-eg/execution-boundary) specification repository.
