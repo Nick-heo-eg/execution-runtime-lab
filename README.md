@@ -4,6 +4,21 @@
 
 > **Runtime Implementation Experimentation Repository** — Separated from specification layer.
 
+## Current Stable Release
+
+**[v0.6-structural-absence](https://github.com/Nick-heo-eg/execution-runtime-lab/releases/tag/v0.6-structural-absence)** — Four-layer structural execution absence enforcement
+
+- **Type System Level:** Compile-time nullification via conditional types
+- **Structural Code Level:** Zero executor imports in STOP/HOLD handlers
+- **Binary Artifact Level:** Physical executor module exclusion
+- **Runtime Behavior Level:** Adversarial test verification (8/8 passing)
+
+**Verification:** Run `npm run verify:all` to verify all enforcement layers.
+
+**Documentation:** See [Structural Absence Proof](proof/STRUCTURAL_ABSENCE_PROOF.md) for unified enforcement report.
+
+---
+
 ## Execution Intercept Guarantee
 
 **If `decision === STOP`, execution path does not exist.**
@@ -30,14 +45,17 @@ stopResult.execute(); // ❌ Compile error: Property 'execute' does not exist
 ### Verification
 
 ```bash
-# Type check enforcement (must pass in CI)
+# Unified verification (type + structural + binary)
+npm run verify:all
+
+# Type check enforcement only
 npx tsc --noEmit
 
-# See proof documentation
-cat proof/STRUCTURAL_TYPE_NULLIFICATION_PROOF.md
+# See consolidated proof documentation
+cat proof/STRUCTURAL_ABSENCE_PROOF.md
 ```
 
-**Runtime Contract:** `EAR_INTERCEPT_v2` with `structural_type_nullification: true`
+**Runtime Contract:** `EAR_INTERCEPT_v2_CONSOLIDATED` with four-layer enforcement
 
 ---
 
@@ -74,7 +92,7 @@ Organizations enforcing STOP-only verdicts can deploy **only** the STOP build �
 
 **Security Guarantee:** Even if an attacker compromises the runtime, no executor bytecode exists to invoke. Binary absence, not runtime blocking.
 
-**Verification:** See `proof/BINARY_ABSENCE_PROOF.md`
+**Verification:** See [proof/STRUCTURAL_ABSENCE_PROOF.md](proof/STRUCTURAL_ABSENCE_PROOF.md) (unified enforcement report) or run `npm run verify:binary-absence`
 
 ---
 
