@@ -1,0 +1,19 @@
+# Node
+node_modules/
+dist/
+*.log
+
+# Proof artifacts (dynamically generated)
+proof/proof_manifest.json
+proof/summary.txt
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
