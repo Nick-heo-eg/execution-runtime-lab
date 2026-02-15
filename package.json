@@ -9,7 +9,10 @@
     "test": "jest",
     "build:runtime": "tsc",
     "build:stop": "tsc --project tsconfig.stop.json && rm -rf dist/stop/src/executor dist/stop/src/adapter/allow_handler.* && echo '✓ Executor modules removed from STOP build'",
-    "verify:binary-absence": "npm run build:stop && ! grep -r 'executeAction\\|createExecutionFunction\\|allow_execution' dist/stop"
+    "verify:structural-absence": "! grep -i 'import.*executor' src/adapter/stop_handler.ts src/adapter/hold_handler.ts && echo '✓ STOP/HOLD handlers have no executor imports'",
+    "verify:binary-absence": "npm run build:stop && ! grep -r 'executeAction\\|createExecutionFunction\\|allow_execution' dist/stop && echo '✓ STOP build has no executor bytecode'",
+    "verify:type-enforcement": "npx tsc --noEmit && echo '✓ Type system enforces execution nullification'",
+    "verify:all": "npm run verify:structural-absence && npm run verify:type-enforcement && npm run verify:binary-absence && echo '✓ All structural absence verifications passed'"
   },
   "keywords": [
     "execution-authority-runtime",

@@ -41,7 +41,7 @@ async function runDemo() {
   });
 
   const result1 = await receiveToolCall(scenario1);
-  console.log(`  Decision: ${result1.decision}`);
+  console.log(`  Verdict: ${result1.verdict}`);
   console.log(`  Executed: ${result1.executed}`);
   console.log(`  Reason: ${result1.reason}`);
   console.log(`  Proof Path: ${result1.proof_path}`);
@@ -55,7 +55,7 @@ async function runDemo() {
   });
 
   const result2 = await receiveToolCall(scenario2);
-  console.log(`  Decision: ${result2.decision}`);
+  console.log(`  Verdict: ${result2.verdict}`);
   console.log(`  Executed: ${result2.executed}`);
   console.log(`  Reason: ${result2.reason}`);
   console.log(`  Proof Path: ${result2.proof_path}`);
@@ -69,7 +69,7 @@ async function runDemo() {
   });
 
   const result3 = await receiveToolCall(scenario3);
-  console.log(`  Decision: ${result3.decision}`);
+  console.log(`  Verdict: ${result3.verdict}`);
   console.log(`  Executed: ${result3.executed}`);
   console.log(`  Reason: ${result3.reason}`);
   console.log(`  Proof Path: ${result3.proof_path}`);
@@ -82,7 +82,7 @@ async function runDemo() {
   });
 
   const result4 = await receiveToolCall(scenario4);
-  console.log(`  Decision: ${result4.decision}`);
+  console.log(`  Verdict: ${result4.verdict}`);
   console.log(`  Executed: ${result4.executed}`);
   console.log(`  Reason: ${result4.reason}`);
   console.log(`  Proof Path: ${result4.proof_path}`);
@@ -96,7 +96,7 @@ async function runDemo() {
   });
 
   const result5 = await receiveToolCall(scenario5);
-  console.log(`  Decision: ${result5.decision}`);
+  console.log(`  Verdict: ${result5.verdict}`);
   console.log(`  Executed: ${result5.executed}`);
   console.log(`  Reason: ${result5.reason}`);
   console.log(`  Proof Path: ${result5.proof_path}`);

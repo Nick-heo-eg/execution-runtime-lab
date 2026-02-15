@@ -40,6 +40,8 @@
   "exclude": [
     "node_modules",
     "dist",
-    "**/*.test.ts"
+    "**/*.test.ts",
+    "proof/generate_proof_artifact.ts",
+    "proof/test_runner.ts"
   ]
 }
