@@ -1,6 +1,6 @@
 {
   "name": "execution-runtime-lab",
-  "version": "1.0.0",
+  "version": "0.6.0",
   "description": "Runtime implementation experimentation for Execution Authority Runtime",
   "type": "module",
   "scripts": {
