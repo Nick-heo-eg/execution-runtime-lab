@@ -79,6 +79,7 @@ async function updateProofManifest(logEntry: OpenClawDecisionLog): Promise<void>
   manifest.metadata = {
     source: 'openclaw_mock',
     intercepted: true,
+    runtime_contract_version: 'EAR_INTERCEPT_v1',
     total_decisions: manifest.decisions.length,
     stop_count: manifest.decisions.filter((d: any) => d.verdict === 'STOP').length,
     hold_count: manifest.decisions.filter((d: any) => d.verdict === 'HOLD').length,

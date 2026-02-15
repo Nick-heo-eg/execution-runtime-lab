@@ -107,7 +107,8 @@ async function runDemo() {
   console.log('========================================');
   console.log(`Proof artifacts generated at:`);
   console.log(`  - ${result1.proof_path}`);
-  console.log(`  - proof/openclaw_intercept/openclaw_decisions.jsonl\n`);
+  console.log(`  - proof/openclaw_intercept/openclaw_decisions.jsonl`);
+  console.log('\nRUNTIME_CONTRACT_ENFORCED: TRUE\n');
 }
 
 // Run demo

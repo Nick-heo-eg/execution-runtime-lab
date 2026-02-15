@@ -4,6 +4,14 @@
 
 > **Runtime Implementation Experimentation Repository** — Separated from specification layer.
 
+## Execution Intercept Guarantee
+
+**If `decision === STOP`, execution path does not exist.**
+
+Code path: Adapter blocks before executor binding. STOP verdicts return immediately with `executed: false` — no execution function is imported or called.
+
+---
+
 ## Overview
 
 This repository contains runtime implementation components for the Execution Authority Runtime (EAR) ecosystem, separated from the [execution-boundary](https://github.com/Nick-heo-eg/execution-boundary) specification repository.
@@ -96,6 +104,15 @@ All intercepted decisions are logged to:
 **This demo does NOT modify OpenClaw source code.**
 
 The interception occurs **externally** as a pre-execution layer. OpenClaw generates tool calls normally, but the adapter intercepts them before execution and enforces EAR decision verdicts.
+
+### Test Layer Independence
+
+**OpenClaw Intercept Demo** and **Adversarial Verification Tests** are independent layers:
+
+- **Adversarial Tests:** Verify runtime invariants and attack resistance (see `adversarial-proof.yml`)
+- **OpenClaw Intercept:** Demonstrates external tool call interception (this demo)
+
+Both layers coexist without modification to each other. Adversarial tests focus on runtime guarantees, while OpenClaw intercept demonstrates pre-execution mediation at the tool call boundary.
 
 ---
 
