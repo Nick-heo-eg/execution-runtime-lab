@@ -1,5 +1,7 @@
 # Execution Runtime Lab
 
+[![Adversarial Proof Verification](https://github.com/Nick-heo-eg/execution-runtime-lab/actions/workflows/adversarial-proof.yml/badge.svg)](https://github.com/Nick-heo-eg/execution-runtime-lab/actions/workflows/adversarial-proof.yml)
+
 > **Runtime Implementation Experimentation Repository** — Separated from specification layer.
 
 ## Overview
@@ -103,6 +105,25 @@ tsx proof/generate_proof_artifact.ts
 - Execution success/error counts
 
 The manifest SHA256 provides cryptographic verification of all logged decisions.
+
+## CI Verified Adversarial Protection
+
+This runtime enforces **continuous verification** of adversarial protection through automated GitHub Actions workflows.
+
+**CI Status:** [![Adversarial Proof Verification](https://github.com/Nick-heo-eg/execution-runtime-lab/actions/workflows/adversarial-proof.yml/badge.svg)](https://github.com/Nick-heo-eg/execution-runtime-lab/actions/workflows/adversarial-proof.yml)
+
+Every push and pull request automatically:
+1. Runs the adversarial test suite against 8 attack patterns
+2. Validates that `fail_count === 0` (all attacks correctly blocked)
+3. Generates cryptographically verifiable proof artifacts
+4. Fails the build if any attack is incorrectly allowed
+
+**Workflow guarantees:**
+- Zero false negatives (no missed attacks)
+- Deterministic decision logging with SHA256 integrity
+- Proof artifacts uploaded for audit trail (30-day retention)
+
+View workflow runs: [Actions Tab](https://github.com/Nick-heo-eg/execution-runtime-lab/actions/workflows/adversarial-proof.yml)
 
 ## Adversarial Protection Verification
 
