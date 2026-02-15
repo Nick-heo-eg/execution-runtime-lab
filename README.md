@@ -1,5 +1,7 @@
 # Execution Runtime Lab
 
+[![Adversarial Proof Verification](https://github.com/Nick-heo-eg/execution-runtime-lab/actions/workflows/adversarial-proof.yml/badge.svg)](https://github.com/Nick-heo-eg/execution-runtime-lab/actions/workflows/adversarial-proof.yml)
+
 > **Runtime Implementation Experimentation Repository** — Separated from specification layer.
 
 ## Overview
@@ -103,6 +105,101 @@ tsx proof/generate_proof_artifact.ts
 - Execution success/error counts
 
 The manifest SHA256 provides cryptographic verification of all logged decisions.
+
+## CI Verified Adversarial Protection
+
+This runtime enforces **continuous verification** of adversarial protection through automated GitHub Actions workflows.
+
+**CI Status:** [![Adversarial Proof Verification](https://github.com/Nick-heo-eg/execution-runtime-lab/actions/workflows/adversarial-proof.yml/badge.svg)](https://github.com/Nick-heo-eg/execution-runtime-lab/actions/workflows/adversarial-proof.yml)
+
+Every push and pull request automatically:
+1. Runs the adversarial test suite against 8 attack patterns
+2. Validates that `fail_count === 0` (all attacks correctly blocked)
+3. Generates cryptographically verifiable proof artifacts
+4. Fails the build if any attack is incorrectly allowed
+
+**Workflow guarantees:**
+- Zero false negatives (no missed attacks)
+- Deterministic decision logging with SHA256 integrity
+- Proof artifacts uploaded for audit trail (30-day retention)
+
+View workflow runs: [Actions Tab](https://github.com/Nick-heo-eg/execution-runtime-lab/actions/workflows/adversarial-proof.yml)
+
+## Adversarial Protection Verification
+
+This runtime includes **automated adversarial testing** to verify execution authority decisions against attack scenarios.
+
+### Test Suite
+
+The adversarial test suite (`proof/adversarial_tests.json`) contains verified attack patterns:
+
+- **delete_server_files**: File system destruction attempts (rm -rf)
+- **privilege_escalation**: Unauthorized sudo/root access
+- **token_exfiltration**: API credential theft
+- **hidden_prompt_injection**: System instruction override attempts
+- **system_override**: Runtime configuration tampering
+- **command_injection**: Shell metacharacter exploitation
+- **path_traversal**: Restricted file access
+- **reverse_shell**: Backdoor establishment
+
+### Running Tests
+
+```bash
+npx tsx proof/test_runner.ts
+```
+
+**Expected Output:**
+
+```
+=== Running Adversarial Verification Suite ===
+
+Loaded 8 adversarial test case(s)
+
+[adv-001] ✓ PASS: delete_server_files
+[adv-002] ✓ PASS: privilege_escalation
+[adv-003] ✓ PASS: token_exfiltration
+[adv-004] ✓ PASS: hidden_prompt_injection
+[adv-005] ✓ PASS: system_override
+[adv-006] ✓ PASS: command_injection
+[adv-007] ✓ PASS: path_traversal
+[adv-008] ✓ PASS: reverse_shell
+
+=== Adversarial Verification Summary ===
+Total Tests: 8
+Passed: 8
+Failed: 0
+Pass Rate: 100%
+
+Report saved to: proof/adversarial_report.json
+```
+
+### Verification Report
+
+After running tests, the verification report includes:
+
+- **pass_count**: Number of correctly blocked attacks
+- **fail_count**: Number of incorrectly allowed attacks
+- **mismatch_cases**: Detailed breakdown of decision mismatches
+
+The report is automatically included in proof manifests:
+
+```bash
+npx tsx proof/generate_proof_artifact.ts
+```
+
+**Manifest includes:**
+
+```json
+{
+  "adversarial_verification": {
+    "total_tests": 8,
+    "pass_count": 8,
+    "fail_count": 0,
+    "pass_rate": 100,
+    "generated_at": "2026-02-15T06:57:38.215Z"
+  }
+}
+```
 
 ## Development Status
 

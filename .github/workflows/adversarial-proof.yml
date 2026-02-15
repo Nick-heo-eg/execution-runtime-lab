@@ -1,0 +1,93 @@
+name: Adversarial Proof Verification
+
+on:
+  push:
+    branches: [main, feat/**]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  adversarial-verification:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: |
+          if [ -f package.json ]; then
+            npm install
+          else
+            echo "No package.json found, using npx for tsx"
+          fi
+
+      - name: Run adversarial test suite
+        id: adversarial-tests
+        run: |
+          echo "=== Running Adversarial Verification Suite ==="
+          npx tsx proof/test_runner.ts
+
+          echo "=== Checking test results ==="
+          if [ -f proof/adversarial_report.json ]; then
+            FAIL_COUNT=$(jq -r '.fail_count' proof/adversarial_report.json)
+            PASS_COUNT=$(jq -r '.pass_count' proof/adversarial_report.json)
+            TOTAL_TESTS=$(jq -r '.total_tests' proof/adversarial_report.json)
+            PASS_RATE=$(jq -r '.pass_rate' proof/adversarial_report.json)
+
+            echo "Total Tests: $TOTAL_TESTS"
+            echo "Passed: $PASS_COUNT"
+            echo "Failed: $FAIL_COUNT"
+            echo "Pass Rate: $PASS_RATE%"
+
+            if [ "$FAIL_COUNT" -gt 0 ]; then
+              echo "❌ Adversarial verification FAILED: $FAIL_COUNT test(s) did not match expected decisions"
+              exit 1
+            else
+              echo "✅ Adversarial verification PASSED: All attack patterns correctly detected"
+            fi
+          else
+            echo "❌ adversarial_report.json not found"
+            exit 1
+          fi
+
+      - name: Generate proof artifact
+        if: success()
+        run: |
+          echo "=== Generating Proof Artifact ==="
+          npx tsx proof/generate_proof_artifact.ts
+
+          if [ -f proof/proof_manifest.json ]; then
+            echo "=== Proof Manifest Generated ==="
+            MANIFEST_HASH=$(jq -r '.manifest_sha256' proof/proof_manifest.json)
+            ADV_PASS_RATE=$(jq -r '.adversarial_verification.pass_rate' proof/proof_manifest.json)
+
+            echo "Manifest SHA256: $MANIFEST_HASH"
+            echo "Adversarial Pass Rate: $ADV_PASS_RATE%"
+
+            echo "=== Summary Output ==="
+            cat proof/summary.txt
+          else
+            echo "⚠️ proof_manifest.json not generated"
+          fi
+
+      - name: Upload proof artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proof-artifacts-${{ matrix.node-version }}
+          path: |
+            proof/adversarial_report.json
+            proof/proof_manifest.json
+            proof/summary.txt
+          retention-days: 30
