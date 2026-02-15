@@ -16,6 +16,8 @@ Code path: Adapter blocks before executor binding. STOP verdicts return immediat
 
 This repository contains runtime implementation components for the Execution Authority Runtime (EAR) ecosystem, separated from the [execution-boundary](https://github.com/Nick-heo-eg/execution-boundary) specification repository.
 
+**STOP is not a rejection state. It is a structural absence of execution.**
+
 **Purpose:**
 - Runtime implementation experimentation
 - OpenClaw skills and integration layer

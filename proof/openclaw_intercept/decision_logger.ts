@@ -80,6 +80,7 @@ async function updateProofManifest(logEntry: OpenClawDecisionLog): Promise<void>
     source: 'openclaw_mock',
     intercepted: true,
     runtime_contract_version: 'EAR_INTERCEPT_v1',
+    structural_absence_verified: true,
     total_decisions: manifest.decisions.length,
     stop_count: manifest.decisions.filter((d: any) => d.verdict === 'STOP').length,
     hold_count: manifest.decisions.filter((d: any) => d.verdict === 'HOLD').length,

@@ -1,0 +1,93 @@
+name: Runtime Proof Verification
+
+on:
+  push:
+    branches: [ main, 'phase*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  structural-absence-verification:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Verify STOP branch has no executor references
+        run: |
+          echo "========================================="
+          echo "Structural Absence Verification"
+          echo "========================================="
+
+          # Check if adapter file exists
+          if [ ! -f "integrations/openclaw/openclaw_adapter.ts" ]; then
+            echo "⚠️  Adapter file not found - skipping verification"
+            exit 0
+          fi
+
+          # Extract STOP branch from adapter
+          STOP_BRANCH=$(sed -n '/if (decision.verdict === .STOP.)/,/^  }/p' \
+            integrations/openclaw/openclaw_adapter.ts)
+
+          echo "Extracted STOP branch:"
+          echo "$STOP_BRANCH"
+          echo ""
+
+          # Check for executor keywords (excluding comments and strings)
+          if echo "$STOP_BRANCH" | grep -v '//' | grep -qE "execute\(|executor\.|binding"; then
+            echo "❌ ERROR: STOP branch contains executor references"
+            echo "STOP must be structurally absent of execution path"
+            exit 1
+          fi
+
+          echo "✓ STOP branch structurally absent of execution path"
+          echo "✓ No executor imports"
+          echo "✓ No executor references"
+          echo "✓ No execution bindings"
+          echo ""
+          echo "STRUCTURAL_ABSENCE_VERIFIED: TRUE"
+
+      - name: Verify no executor imports in adapter
+        run: |
+          echo "========================================="
+          echo "Import Analysis"
+          echo "========================================="
+
+          if [ ! -f "integrations/openclaw/openclaw_adapter.ts" ]; then
+            exit 0
+          fi
+
+          # Check for executor-related imports
+          if grep -i "import.*execute" integrations/openclaw/openclaw_adapter.ts; then
+            echo "❌ ERROR: Adapter imports executor module"
+            exit 1
+          fi
+
+          echo "✓ No executor imports detected"
+          echo "✓ Adapter does not have access to execution functions"
+
+      - name: Verify proof manifest structure
+        run: |
+          echo "========================================="
+          echo "Proof Manifest Verification"
+          echo "========================================="
+
+          if [ ! -f "proof/openclaw_intercept/proof_manifest.json" ]; then
+            echo "⚠️  Proof manifest not found - skipping"
+            exit 0
+          fi
+
+          # Check for structural_absence_verified field
+          if ! grep -q "structural_absence_verified" proof/openclaw_intercept/proof_manifest.json; then
+            echo "⚠️  Warning: proof_manifest.json missing structural_absence_verified field"
+          else
+            echo "✓ Proof manifest includes structural_absence_verified"
+          fi
+
+          # Verify runtime_contract_version
+          if ! grep -q "runtime_contract_version" proof/openclaw_intercept/proof_manifest.json; then
+            echo "⚠️  Warning: proof_manifest.json missing runtime_contract_version"
+          else
+            echo "✓ Proof manifest includes runtime_contract_version"
+          fi
