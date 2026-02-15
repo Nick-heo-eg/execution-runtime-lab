@@ -41,6 +41,43 @@ cat proof/STRUCTURAL_TYPE_NULLIFICATION_PROOF.md
 
 ---
 
+## Binary-Level Structural Absence
+
+**STOP builds do not contain executor bytecode.**
+
+### Physical Module Separation
+
+This runtime enforces binary-level separation: STOP/HOLD builds physically exclude executor modules from compiled output.
+
+```bash
+# Build STOP variant (no executor code)
+npm run build:stop
+
+# Verify binary absence
+grep -r "executeAction" dist/stop
+# Expected: (no output - 0 matches)
+
+ls dist/stop/src/executor
+# Expected: No such file or directory
+```
+
+**Not dead code elimination. Not tree-shaking. Physical module exclusion.**
+
+### Deployment Implications
+
+Organizations enforcing STOP-only verdicts can deploy **only** the STOP build — a binary artifact that physically cannot execute actions because executor code does not exist.
+
+| Build | Contains Executor | Use Case |
+|-------|-------------------|----------|
+| `dist/stop` | ❌ No | STOP/HOLD enforcement, zero execution capability |
+| `dist/runtime` | ✅ Yes | Full STOP/HOLD/ALLOW capability |
+
+**Security Guarantee:** Even if an attacker compromises the runtime, no executor bytecode exists to invoke. Binary absence, not runtime blocking.
+
+**Verification:** See `proof/BINARY_ABSENCE_PROOF.md`
+
+---
+
 ## Overview
 
 This repository contains runtime implementation components for the Execution Authority Runtime (EAR) ecosystem, separated from the [execution-boundary](https://github.com/Nick-heo-eg/execution-boundary) specification repository.

@@ -10,8 +10,11 @@
  */
 
 import { evaluateDecision, Decision, DecisionInput } from './decision_engine';
-import { logOpenClawDecision } from '../../proof/openclaw_intercept/decision_logger';
-import { ExecutionCapability, DecisionResult } from '../../src/types/execution_capability';
+import { DecisionResult } from '../../src/types/execution_capability';
+import { handleStopVerdict } from '../../src/adapter/stop_handler';
+import { handleHoldVerdict } from '../../src/adapter/hold_handler';
+// ALLOW handler is conditionally imported only when building full runtime
+// STOP builds exclude allow_handler.ts and all executor modules
 
 export interface OpenClawToolCall {
   tool_name: string;
@@ -57,71 +60,24 @@ export async function receiveToolCall(
 
   // If STOP verdict, block execution and generate proof artifact
   // Type system enforces: execute property CANNOT exist
+  // Binary separation: stop_handler does NOT import executor module
   if (decision.verdict === 'STOP') {
-    const proofPath = await logOpenClawDecision({
-      input: decisionInput,
-      decision,
-      intercepted: true,
-      source: 'openclaw_mock',
-    });
-
-    return {
-      verdict: 'STOP',
-      proof_path: proofPath,
-      decision_hash: decision.decision_hash,
-      reason: decision.reason,
-      executed: false,
-      blocked_at_compile_time: true,
-      // execute property does NOT exist - enforced by ExecutionCapability<'STOP'>
-    };
+    return await handleStopVerdict(decision, decisionInput);
   }
 
   // HOLD verdict - requires external approval
   // Type system enforces: execute property CANNOT exist
+  // Binary separation: hold_handler does NOT import executor module
   if (decision.verdict === 'HOLD') {
-    const proofPath = await logOpenClawDecision({
-      input: decisionInput,
-      decision,
-      intercepted: true,
-      source: 'openclaw_mock',
-    });
-
-    return {
-      verdict: 'HOLD',
-      proof_path: proofPath,
-      decision_hash: decision.decision_hash,
-      reason: decision.reason || 'External approval required',
-      executed: false,
-      requires_approval: true,
-      // execute property does NOT exist - enforced by ExecutionCapability<'HOLD'>
-    };
+    return await handleHoldVerdict(decision, decisionInput);
   }
 
   // ALLOW verdict - execution capability exists
   // Type system enforces: execute property MUST exist
-  const proofPath = await logOpenClawDecision({
-    input: decisionInput,
-    decision,
-    intercepted: false,
-    source: 'openclaw_mock',
-  });
-
-  return {
-    verdict: 'ALLOW',
-    proof_path: proofPath,
-    decision_hash: decision.decision_hash,
-    reason: decision.reason || 'Execution allowed',
-    executed: false,
-    // execute function EXISTS - enforced by ExecutionCapability<'ALLOW'>
-    execute: async () => {
-      // Mock execution implementation
-      // In production, this would invoke actual OpenClaw tool execution
-      return {
-        success: true,
-        result: { tool_name: payload.tool_name, status: 'executed' },
-      };
-    },
-  };
+  // Binary separation: Dynamically import allow_handler (includes executor)
+  // STOP builds exclude allow_handler entirely
+  const { handleAllowVerdict } = await import('../../src/adapter/allow_handler');
+  return await handleAllowVerdict(decision, decisionInput, payload);
 }
 
 /**

@@ -13,7 +13,7 @@ export interface OpenClawDecisionLog {
   decision: Decision;
   intercepted: boolean;
   source: string;
-  logged_at: number;
+  logged_at?: number; // Optional - will be added by logger
 }
 
 const DECISION_LOG_PATH = path.join(__dirname, 'openclaw_decisions.jsonl');

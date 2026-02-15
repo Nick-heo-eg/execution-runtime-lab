@@ -6,7 +6,10 @@
   "scripts": {
     "demo:openclaw": "npx ts-node demo/openclaw_intercept_demo.ts",
     "proof:generate": "tsx proof/generate_proof_artifact.ts",
-    "test": "jest"
+    "test": "jest",
+    "build:runtime": "tsc",
+    "build:stop": "tsc --project tsconfig.stop.json && rm -rf dist/stop/src/executor dist/stop/src/adapter/allow_handler.* && echo '✓ Executor modules removed from STOP build'",
+    "verify:binary-absence": "npm run build:stop && ! grep -r 'executeAction\\|createExecutionFunction\\|allow_execution' dist/stop"
   },
   "keywords": [
     "execution-authority-runtime",

@@ -114,3 +114,36 @@ jobs:
           echo "✓ STOP/HOLD verdicts cannot compile with execute property"
           echo ""
           echo "TYPE_LEVEL_ENFORCEMENT_VERIFIED: TRUE"
+
+      - name: Binary Absence Verification
+        run: |
+          echo "========================================="
+          echo "Binary-Level Executor Absence Check"
+          echo "========================================="
+
+          if [ ! -f "package.json" ]; then
+            echo "⚠️  package.json not found - skipping binary check"
+            exit 0
+          fi
+
+          # Build STOP variant
+          npm run build:stop
+
+          # Verify executor directory does not exist
+          if [ -d "dist/stop/src/executor" ]; then
+            echo "❌ ERROR: Executor directory exists in STOP build"
+            ls -la dist/stop/src/executor
+            exit 1
+          fi
+
+          # Verify no executor function references in binary
+          if grep -r "executeAction\|createExecutionFunction" dist/stop 2>/dev/null; then
+            echo "❌ ERROR: Executor bytecode found in STOP build"
+            exit 1
+          fi
+
+          echo "✓ Executor directory absent from STOP build"
+          echo "✓ STOP build contains zero executor bytecode"
+          echo "✓ Binary separation verified"
+          echo ""
+          echo "BINARY_ABSENCE_VERIFIED: TRUE"

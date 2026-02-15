@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/stop"
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "src/executor/**/*",
+    "src/adapter/allow_handler.ts",
+    "demo/**/*",
+    "proof/generate_proof_artifact.ts",
+    "proof/test_runner.ts"
+  ],
+  "include": [
+    "src/types/**/*",
+    "src/adapter/stop_handler.ts",
+    "src/adapter/hold_handler.ts",
+    "integrations/**/*",
+    "proof/**/*"
+  ]
+}
