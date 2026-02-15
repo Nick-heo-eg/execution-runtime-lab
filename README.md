@@ -4,6 +4,36 @@
 
 > **Runtime Implementation Experimentation Repository** — Separated from specification layer.
 
+---
+
+## Core Engine Separation Notice
+
+**IMPORTANT:** This repository serves as the **runtime experimentation layer** and **public demonstration workspace**.
+
+**The actual enforcement logic resides in a separate private repository:**
+- **Private Enforcement Core:** [`execution-runtime-core`](https://github.com/Nick-heo-eg/execution-runtime-core) (private repository)
+- **Public Runtime Lab:** `execution-runtime-lab` (this repository)
+
+**Repository Purpose Clarification:**
+
+| Repository | Scope | Access |
+|-----------|-------|--------|
+| **execution-runtime-core** | **Actual enforcement engine** (Gate, Crypto, Infra modules) | Private |
+| **execution-runtime-lab** | Runtime experimentation, OpenClaw integration, public demonstrations | Public |
+| **execution-boundary** | Specification and architectural baseline (RC2_STRICT_ALIGNED) | Public |
+
+**Core Guarantees Implementation:**
+1. **Fail-Closed Enforcement** - Implemented in private core
+2. **Cryptographic Verification** - Implemented in private core
+3. **Infrastructure Bypass Prevention** - Implemented in private core
+
+This separation ensures that:
+- Enforcement mechanisms remain protected in the private repository
+- Public experimentation and integration work continues in this repository
+- Specification remains stable and publicly documented in execution-boundary
+
+---
+
 ## Overview
 
 This repository contains runtime implementation components for the Execution Authority Runtime (EAR) ecosystem, separated from the [execution-boundary](https://github.com/Nick-heo-eg/execution-boundary) specification repository.
