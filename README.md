@@ -19,6 +19,30 @@
 
 ---
 
+## Public Boundary Declaration
+
+**This repository is frozen at v0.6 as the public verification and proof layer.**
+
+### What Stays Public (Allowed Changes)
+- Proof artifacts and verification scripts
+- Documentation and reproducibility guides
+- CI/CD for proof validation
+- Public contracts and interface specifications
+- Adversarial test suite
+
+### What Moves to Private Core (No Future Changes Here)
+- Cryptographic signing and authority issuance
+- Policy enforcement engine
+- Production secrets and deployment keys
+- Fail-closed infrastructure logic
+- Runtime executor modules
+
+**Implementation Core:** All production enforcement logic has moved to a private repository (`execution-runtime-core`). This public layer provides transparent verification and reproducible proofs.
+
+**See:** [docs/PUBLIC_SCOPE.md](docs/PUBLIC_SCOPE.md) for detailed boundary documentation.
+
+---
+
 ## Execution Intercept Guarantee
 
 **If `decision === STOP`, execution path does not exist.**
