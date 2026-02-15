@@ -6,6 +6,7 @@ dist/
 # Proof artifacts (dynamically generated)
 proof/proof_manifest.json
 proof/summary.txt
+proof/adversarial_report.json
 
 # Editor
 .vscode/

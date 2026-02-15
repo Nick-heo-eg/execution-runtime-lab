@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { createHash } from 'crypto';
 import { join } from 'path';
 
@@ -11,6 +11,14 @@ interface Decision {
   execution_result?: 'success' | 'error' | null;
 }
 
+interface AdversarialVerification {
+  total_tests: number;
+  pass_count: number;
+  fail_count: number;
+  pass_rate: number;
+  generated_at: string;
+}
+
 interface ProofManifest {
   generated_at: string;
   session_id: string;
@@ -21,6 +29,7 @@ interface ProofManifest {
   allow_count: number;
   execution_success_count: number;
   execution_error_count: number;
+  adversarial_verification?: AdversarialVerification;
   decisions: Decision[];
   manifest_sha256?: string;
 }
@@ -47,6 +56,32 @@ class ProofArtifactGenerator {
     } catch (error) {
       console.error('Error reading decision log:', error);
       return [];
+    }
+  }
+
+  /**
+   * Read adversarial verification report if available
+   */
+  private readAdversarialReport(): AdversarialVerification | null {
+    try {
+      const reportPath = join(this.proofDir, 'adversarial_report.json');
+      if (!existsSync(reportPath)) {
+        return null;
+      }
+
+      const content = readFileSync(reportPath, 'utf-8');
+      const report = JSON.parse(content);
+
+      return {
+        total_tests: report.total_tests,
+        pass_count: report.pass_count,
+        fail_count: report.fail_count,
+        pass_rate: report.pass_rate,
+        generated_at: report.generated_at
+      };
+    } catch (error) {
+      console.error('Error reading adversarial report:', error);
+      return null;
     }
   }
 
@@ -97,6 +132,9 @@ class ProofArtifactGenerator {
       (d) => d.execution_result === 'error'
     ).length;
 
+    // Read adversarial verification report
+    const adversarialVerification = this.readAdversarialReport();
+
     const manifest: ProofManifest = {
       generated_at: new Date().toISOString(),
       session_id: sessionId,
@@ -107,6 +145,7 @@ class ProofArtifactGenerator {
       allow_count: allowCount,
       execution_success_count: executionSuccessCount,
       execution_error_count: executionErrorCount,
+      ...(adversarialVerification && { adversarial_verification: adversarialVerification }),
       decisions,
     };
 
@@ -121,7 +160,7 @@ class ProofArtifactGenerator {
    * Generate summary text
    */
   private generateSummary(manifest: ProofManifest): string {
-    return `Execution Authority Runtime - Decision Proof Artifact
+    let summary = `Execution Authority Runtime - Decision Proof Artifact
 
 Generated: ${manifest.generated_at}
 Session ID: ${manifest.session_id}
@@ -136,13 +175,29 @@ ALLOW (Executed): ${manifest.allow_count}
 === Execution Results ===
 Success: ${manifest.execution_success_count}
 Error: ${manifest.execution_error_count}
+`;
 
+    if (manifest.adversarial_verification) {
+      const adv = manifest.adversarial_verification;
+      summary += `
+=== Adversarial Protection ===
+Total Tests: ${adv.total_tests}
+Passed: ${adv.pass_count}
+Failed: ${adv.fail_count}
+Pass Rate: ${adv.pass_rate}%
+Verified: ${adv.generated_at}
+`;
+    }
+
+    summary += `
 === Integrity ===
 Manifest SHA256: ${manifest.manifest_sha256}
 
 All decisions logged deterministically with input SHA256 fingerprints.
 Pre-execution mediation enforced BEFORE execution_call().
 `;
+
+    return summary;
   }
 
   /**
