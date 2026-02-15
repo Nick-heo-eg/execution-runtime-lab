@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://execution-runtime.org/schemas/authority_token.schema.json",
+  "title": "Authority Token Schema",
+  "description": "Cryptographically signed authority token for execution governance",
+  "version": "1.0.0",
+  "type": "object",
+  "required": [
+    "token_id",
+    "issuer",
+    "issued_at",
+    "expires_at",
+    "permissions",
+    "signature"
+  ],
+  "properties": {
+    "token_id": {
+      "type": "string",
+      "description": "Unique identifier for this authority token (UUIDv4)",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "issuer": {
+      "type": "string",
+      "description": "Authority that issued this token (e.g., 'execution-runtime-core', 'enterprise-policy-server')"
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when token was issued"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when token expires"
+    },
+    "permissions": {
+      "type": "object",
+      "description": "Permitted actions and constraints",
+      "required": ["allowed_verdicts"],
+      "properties": {
+        "allowed_verdicts": {
+          "type": "array",
+          "description": "Verdicts this authority can issue (STOP, HOLD, ALLOW)",
+          "items": {
+            "type": "string",
+            "enum": ["STOP", "HOLD", "ALLOW"]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "scope": {
+          "type": "string",
+          "description": "Scope of authority (e.g., 'global', 'organization:acme-corp', 'user:alice@example.com')"
+        },
+        "constraints": {
+          "type": "object",
+          "description": "Additional constraints on token usage",
+          "properties": {
+            "max_executions": {
+              "type": "integer",
+              "description": "Maximum number of executions permitted",
+              "minimum": 0
+            },
+            "rate_limit": {
+              "type": "object",
+              "description": "Rate limiting constraints",
+              "properties": {
+                "max_per_hour": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "max_per_day": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "description": "Cryptographic signature proving token authenticity",
+      "required": ["algorithm", "value", "public_key_id"],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "description": "Signature algorithm (e.g., 'RS256', 'ES256', 'EdDSA')",
+          "enum": ["RS256", "RS384", "RS512", "ES256", "ES384", "ES512", "EdDSA"]
+        },
+        "value": {
+          "type": "string",
+          "description": "Base64-encoded signature of token payload"
+        },
+        "public_key_id": {
+          "type": "string",
+          "description": "Identifier of public key used for verification"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Optional metadata for audit and tracking",
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "description": "Associated request identifier"
+        },
+        "policy_version": {
+          "type": "string",
+          "description": "Policy version used to issue token"
+        },
+        "audit_log_id": {
+          "type": "string",
+          "description": "Reference to audit log entry"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "token_id": "550e8400-e29b-41d4-a716-446655440000",
+      "issuer": "execution-runtime-core",
+      "issued_at": "2026-02-16T10:30:00Z",
+      "expires_at": "2026-02-16T11:30:00Z",
+      "permissions": {
+        "allowed_verdicts": ["STOP", "HOLD"],
+        "scope": "organization:acme-corp",
+        "constraints": {
+          "rate_limit": {
+            "max_per_hour": 1000,
+            "max_per_day": 10000
+          }
+        }
+      },
+      "signature": {
+        "algorithm": "EdDSA",
+        "value": "base64EncodedSignatureHere==",
+        "public_key_id": "key-2026-02-16-prod"
+      },
+      "metadata": {
+        "policy_version": "v2.1.0",
+        "audit_log_id": "audit-202602161030-001"
+      }
+    }
+  ]
+}

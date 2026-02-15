@@ -1,0 +1,196 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://execution-runtime.org/schemas/decision_event.schema.json",
+  "title": "Decision Event Schema",
+  "description": "Execution governance decision event logged for audit and verification",
+  "version": "1.0.0",
+  "type": "object",
+  "required": [
+    "event_id",
+    "timestamp",
+    "verdict",
+    "input_hash",
+    "policy_id"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "Unique identifier for this decision event (UUIDv4)",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when decision was made"
+    },
+    "verdict": {
+      "type": "string",
+      "description": "Execution verdict issued by governance layer",
+      "enum": ["STOP", "HOLD", "ALLOW"]
+    },
+    "input_hash": {
+      "type": "string",
+      "description": "SHA256 hash of input payload (for deterministic verification)",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "policy_id": {
+      "type": "string",
+      "description": "Identifier of policy used for decision (e.g., 'strict-threshold-v2', 'enterprise-compliance-2026')"
+    },
+    "execution_attempted": {
+      "type": "boolean",
+      "description": "Whether execution was attempted (true only for ALLOW verdict)",
+      "default": false
+    },
+    "execution_result": {
+      "type": ["string", "null"],
+      "description": "Result of execution if attempted ('success', 'error', or null if not executed)",
+      "enum": ["success", "error", null]
+    },
+    "risk_score": {
+      "type": "number",
+      "description": "Calculated risk score (0.0 to 1.0, where 1.0 is highest risk)",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "risk_factors": {
+      "type": "array",
+      "description": "List of risk factors that contributed to verdict",
+      "items": {
+        "type": "object",
+        "required": ["factor", "weight"],
+        "properties": {
+          "factor": {
+            "type": "string",
+            "description": "Risk factor identifier (e.g., 'forbidden_action', 'privilege_escalation', 'data_exfiltration')"
+          },
+          "weight": {
+            "type": "number",
+            "description": "Weight of this factor in final score (0.0 to 1.0)",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "evidence": {
+            "type": "string",
+            "description": "Evidence supporting this risk factor (e.g., matched pattern, keyword)"
+          }
+        }
+      }
+    },
+    "authority_token_id": {
+      "type": "string",
+      "description": "ID of authority token used to issue this decision (references authority_token.schema.json)"
+    },
+    "source": {
+      "type": "string",
+      "description": "Source of execution request (e.g., 'openclaw', 'api', 'cli', 'sdk')"
+    },
+    "intercepted": {
+      "type": "boolean",
+      "description": "Whether this decision resulted from pre-execution interception",
+      "default": false
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata for audit and tracking",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "description": "User or agent identifier associated with request"
+        },
+        "session_id": {
+          "type": "string",
+          "description": "Session identifier"
+        },
+        "organization_id": {
+          "type": "string",
+          "description": "Organization identifier (for enterprise deployments)"
+        },
+        "request_context": {
+          "type": "object",
+          "description": "Additional request context (key-value pairs)"
+        }
+      }
+    },
+    "proof": {
+      "type": "object",
+      "description": "Cryptographic proof of decision integrity",
+      "required": ["signature"],
+      "properties": {
+        "signature": {
+          "type": "string",
+          "description": "Base64-encoded signature of decision event"
+        },
+        "chain_hash": {
+          "type": "string",
+          "description": "Hash linking to previous decision event (for tamper detection)",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "event_id": "660e9500-f39c-51e5-b827-557766551111",
+      "timestamp": "2026-02-16T10:35:42.123Z",
+      "verdict": "STOP",
+      "input_hash": "5d41402abc4b2a76b9719d911017c592e3f5e6e4c8b2a76b9719d911017c592",
+      "policy_id": "strict-threshold-v2",
+      "execution_attempted": false,
+      "execution_result": null,
+      "risk_score": 0.95,
+      "risk_factors": [
+        {
+          "factor": "forbidden_action",
+          "weight": 1.0,
+          "evidence": "matched pattern: 'delete_server_files'"
+        },
+        {
+          "factor": "destructive_operation",
+          "weight": 0.9,
+          "evidence": "contains 'rm -rf' command"
+        }
+      ],
+      "authority_token_id": "550e8400-e29b-41d4-a716-446655440000",
+      "source": "openclaw",
+      "intercepted": true,
+      "metadata": {
+        "user_id": "agent-prod-001",
+        "session_id": "sess-20260216103542",
+        "organization_id": "org-acme-corp"
+      },
+      "proof": {
+        "signature": "base64EncodedDecisionSignature==",
+        "chain_hash": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce"
+      }
+    },
+    {
+      "event_id": "770fa611-g40d-62f6-c938-668877662222",
+      "timestamp": "2026-02-16T10:36:15.456Z",
+      "verdict": "ALLOW",
+      "input_hash": "7d793037a0760186574b0282f2f435e7cbfefd5bf9f27b0a72c6b2b06e5d34e0",
+      "policy_id": "strict-threshold-v2",
+      "execution_attempted": true,
+      "execution_result": "success",
+      "risk_score": 0.15,
+      "risk_factors": [
+        {
+          "factor": "safe_read_operation",
+          "weight": 0.1,
+          "evidence": "read-only file access"
+        }
+      ],
+      "authority_token_id": "550e8400-e29b-41d4-a716-446655440000",
+      "source": "api",
+      "intercepted": false,
+      "metadata": {
+        "user_id": "user-alice@example.com",
+        "session_id": "sess-20260216103615"
+      },
+      "proof": {
+        "signature": "base64EncodedDecisionSignature==",
+        "chain_hash": "5d41402abc4b2a76b9719d911017c592e3f5e6e4c8b2a76b9719d911017c592"
+      }
+    }
+  ]
+}
