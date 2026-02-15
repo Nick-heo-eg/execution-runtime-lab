@@ -1,0 +1,3 @@
+{"timestamp":"2026-02-15T06:45:00.000Z","input_sha256":"5d41402abc4b2a76b9719d911017c592e3f5e6e4c8b2a76b971","policy_id":"strict-threshold-1","decision":"STOP","execution_attempted":false,"execution_result":null}
+{"timestamp":"2026-02-15T06:45:15.123Z","input_sha256":"7d793037a0760186574b0282f2f435e7c3f5e6e4c8b2a76b972","policy_id":"strict-threshold-1","decision":"ALLOW","execution_attempted":true,"execution_result":"success"}
+{"timestamp":"2026-02-15T06:45:30.456Z","input_sha256":"9c44481e42618b2f0f8d7e49a7f15e6e3f5e6e4c8b2a76b973","policy_id":"strict-threshold-1","decision":"HOLD","execution_attempted":false,"execution_result":null}

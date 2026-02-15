@@ -20,6 +20,12 @@ This repository contains runtime implementation components for the Execution Aut
 ```
 execution-runtime-lab/
 ├── openclaw.mjs              # OpenClaw entry point
+├── decision_log.jsonl        # Deterministic decision logging (JSONL format)
+├── proof/                    # Proof artifact generation
+│   ├── decision_logger.ts    # Decision logging infrastructure
+│   ├── generate_proof_artifact.ts  # Proof manifest generator
+│   ├── proof_manifest.json   # Generated proof manifest
+│   └── summary.txt           # Human-readable summary
 └── skills/                   # OpenClaw skill implementations (54 skills)
     ├── 1password/
     ├── apple-notes/
@@ -48,6 +54,55 @@ Separated from execution-boundary at commit `9a7c774a8` (2026-02-15) after RC2_S
 **Previous Location:** `Nick-heo-eg/execution-boundary` (skills/, openclaw.mjs)
 
 **Separation PR:** [#2](https://github.com/Nick-heo-eg/execution-boundary/pull/2)
+
+## Decision Logging & Proof Artifact Generation
+
+This runtime implements **deterministic decision logging** for execution authority mediation.
+
+### Decision Log Format
+
+Every mediation decision is logged to `decision_log.jsonl` as a single JSON line:
+
+```json
+{"timestamp":"2026-02-15T06:45:00.000Z","input_sha256":"5d41402abc4b2a76b9719d911017c592e3f5e6e4c8b2a76b971","policy_id":"strict-threshold-1","decision":"STOP","execution_attempted":false,"execution_result":null}
+```
+
+**Fields:**
+- `timestamp`: ISO 8601 timestamp of decision
+- `input_sha256`: SHA256 hash of input (deterministic fingerprint)
+- `policy_id`: Policy used for mediation
+- `decision`: One of `STOP`, `HOLD`, or `ALLOW`
+- `execution_attempted`: `true` only for `ALLOW` decisions
+- `execution_result`: `success`, `error`, or `null`
+
+### Pre-Execution Mediation
+
+Decisions are logged **BEFORE** `execution_call()`:
+
+- **STOP**: Blocked immediately, no execution attempted
+- **HOLD**: Deferred for review, no execution attempted
+- **ALLOW**: Execution proceeds, result logged after completion
+
+### Proof Artifact Generation
+
+Generate verifiable proof artifacts from decision logs:
+
+```bash
+tsx proof/generate_proof_artifact.ts
+```
+
+**Outputs:**
+- `proof/proof_manifest.json` - Complete decision manifest with SHA256 integrity hash
+- `proof/summary.txt` - Human-readable summary of decision statistics
+
+**Summary includes:**
+- Total execution attempts
+- STOP decisions (blocked)
+- HOLD decisions (deferred)
+- ALLOW decisions (executed)
+- Execution success/error counts
+
+The manifest SHA256 provides cryptographic verification of all logged decisions.
 
 ## Development Status
 
