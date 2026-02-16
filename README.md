@@ -1,14 +1,12 @@
 # Execution Runtime Lab
 
-> **Canonical v0.6 Freeze — Public Runtime Experimentation + Proof Layer**
+> **Verifiable Execution Authority Boundary Reference Implementation**
 >
-> This repo is the public runtime experimentation + proof layer.
-> The enforcement core lives in a private repo.
-> No runtime guarantees are provided here.
+> This repository demonstrates structural execution prevention.
+> It does not contain the production authority engine.
+> Core cryptographic enforcement resides in a sealed private module.
 
 [![Adversarial Proof Verification](https://github.com/Nick-heo-eg/execution-runtime-lab/actions/workflows/adversarial-proof.yml/badge.svg)](https://github.com/Nick-heo-eg/execution-runtime-lab/actions/workflows/adversarial-proof.yml)
-
-> **Runtime Implementation Experimentation Repository** — Separated from specification layer.
 
 ## Current Stable Release
 
