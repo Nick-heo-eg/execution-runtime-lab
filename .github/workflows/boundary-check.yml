@@ -1,0 +1,38 @@
+name: Boundary Integrity Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  boundary-check:
+    runs-on: ubuntu-latest
+    name: Verify Public Layer Isolation
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run boundary integrity check
+        run: |
+          bash scripts/boundary_check.sh
+
+      - name: Verify no private repo imports
+        run: |
+          echo "Checking for forbidden imports from execution-runtime-core..."
+          # Check src/ and proof/ only (docs and contracts can reference)
+          if [ -d "src" ]; then
+            if grep -r "from ['\"].*execution-runtime-core" src/ 2>/dev/null; then
+              echo "❌ FAIL: Forbidden imports in src/"
+              exit 1
+            fi
+          fi
+          if [ -d "proof" ]; then
+            if grep -r "from ['\"].*execution-runtime-core" proof/ 2>/dev/null; then
+              echo "❌ FAIL: Forbidden imports in proof/"
+              exit 1
+            fi
+          fi
+          echo "✅ PASS: No forbidden imports in code"
