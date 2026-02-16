@@ -39,6 +39,8 @@
 
 **Implementation Core:** All production enforcement logic has moved to a private repository (`execution-runtime-core`). This public layer provides transparent verification and reproducible proofs.
 
+**Production enforcement engine is private (runtime-core).**
+
 **See:** [docs/PUBLIC_SCOPE.md](docs/PUBLIC_SCOPE.md) for detailed boundary documentation.
 
 ---
