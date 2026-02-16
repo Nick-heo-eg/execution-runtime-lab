@@ -1,5 +1,11 @@
 # Execution Runtime Lab
 
+> **Canonical v0.6 Freeze — Public Runtime Experimentation + Proof Layer**
+>
+> This repo is the public runtime experimentation + proof layer.
+> The enforcement core lives in a private repo.
+> No runtime guarantees are provided here.
+
 [![Adversarial Proof Verification](https://github.com/Nick-heo-eg/execution-runtime-lab/actions/workflows/adversarial-proof.yml/badge.svg)](https://github.com/Nick-heo-eg/execution-runtime-lab/actions/workflows/adversarial-proof.yml)
 
 > **Runtime Implementation Experimentation Repository** — Separated from specification layer.
@@ -14,6 +20,8 @@
 - **Runtime Behavior Level:** Adversarial test verification (8/8 passing)
 
 **Verification:** Run `npm run verify:all` to verify all enforcement layers.
+
+**CI:** CI uses Node/npm for verification scripts.
 
 **Documentation:** See [Structural Absence Proof](proof/STRUCTURAL_ABSENCE_PROOF.md) for unified enforcement report.
 
@@ -230,9 +238,9 @@ Both layers coexist without modification to each other. Adversarial tests focus 
 
 ## Related Repositories
 
-- **Specification:** [execution-boundary](https://github.com/Nick-heo-eg/execution-boundary) - RC2_STRICT_ALIGNED baseline
+- [execution-boundary](https://github.com/Nick-heo-eg/execution-boundary) - Conceptual entry point
+- [execution-governance-spec](https://github.com/Nick-heo-eg/execution-governance-spec) - Structural taxonomy
 - **Runtime Lab:** [execution-runtime-lab](https://github.com/Nick-heo-eg/execution-runtime-lab) - Implementation workspace (this repo)
-- **Private Core:** [execution-runtime-core](https://github.com/Nick-heo-eg/execution-runtime-core) - Private enforcement engine
 
 ## History
 
