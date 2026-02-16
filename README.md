@@ -102,6 +102,24 @@ The public layer proves structural concepts transparently. The private layer imp
 
 ---
 
+## Version Strategy
+
+This project maintains **dual release tracks** with distinct version schemes:
+
+| Repository | Track | Version Pattern | Focus | Latest |
+|------------|-------|-----------------|-------|--------|
+| **execution-runtime-lab** (Public) | Structural Reference | `v0.6.x` | Proof maturity, verification techniques | v0.6-structural-absence |
+| **execution-runtime-core** (Private) | Enterprise Engine | `v1.x` | Enforcement capability, production features | v1.0 (product-v1.0) |
+
+**Rationale**: Public and private repos address different concerns and evolve independently.
+
+- **Public (v0.6.x)**: Structural proof demonstrations frozen at v0.6 baseline. Patches may address verification scripts or documentation.
+- **Private (v1.x)**: Production enforcement engine with cryptographic authority, fail-closed guarantees, and enterprise policy evaluation.
+
+**Version Independence**: Public v0.6 does NOT correspond to private v1.0. They are separate maturity indicators.
+
+---
+
 ## Execution Intercept Guarantee
 
 **If `decision === STOP`, execution path does not exist.**
