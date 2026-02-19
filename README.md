@@ -25,9 +25,9 @@ All implementations are experimental and may change.
 
 ## Relationship to Other Repositories
 
-* `execution-boundary` — conceptual anchor and architectural map
-* `ai-judgment-trail-spec` — decision trace schema
-* `telegram-judgment-demo-proof` — demonstration of structural STOP/HOLD states
+* [execution-boundary](https://github.com/Nick-heo-eg/execution-boundary) — Conceptual anchor and architectural map
+* [ai-judgment-trail-spec](https://github.com/Nick-heo-eg/ai-judgment-trail-spec) — Decision trace schema
+* [telegram-judgment-demo-proof](https://github.com/Nick-heo-eg/telegram-judgment-demo-proof) — Demonstration of structural STOP/HOLD states
 
 This repository focuses on runtime experimentation only.
 
