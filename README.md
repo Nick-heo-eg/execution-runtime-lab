@@ -33,6 +33,37 @@ This repository focuses on runtime experimentation only.
 
 ---
 
+## Quick Start
+
+```bash
+# Clone repository
+git clone https://github.com/Nick-heo-eg/execution-runtime-lab
+cd execution-runtime-lab
+
+# Install dependencies
+npm install
+
+# Run verification
+npm run verify
+
+# View proof artifacts
+cat proof/STRUCTURAL_ABSENCE_PROOF.md
+```
+
+---
+
+## Documentation
+
+For detailed technical documentation and structural proofs:
+
+* [Overview](docs/OVERVIEW.md) — Architectural context and philosophy
+* [Structural Enforcement](docs/STRUCTURAL_ENFORCEMENT.md) — Four-layer enforcement model
+* [Public/Private Boundary](docs/PUBLIC_PRIVATE_BOUNDARY.md) — Separation rationale and version strategy
+* [Adversarial Verification](docs/ADVERSARIAL_VERIFICATION.md) — Verification methodology
+* [Technical Details](docs/TECHNICAL_DETAILS.md) — Type-level and binary-level implementation
+
+---
+
 ## What This Repository Contains
 
 * Experimental decision engines
@@ -49,33 +80,6 @@ This repository focuses on runtime experimentation only.
 * Enterprise policy engines
 * Compliance guarantees
 * Finalized cryptographic enforcement infrastructure
-
----
-
-## Experimental Areas
-
-Current runtime experiments include:
-
-* Decision gating prior to execution
-* Tool-call interception layers
-* Structural absence demonstrations
-* Adversarial scenario testing
-
-These experiments validate architectural hypotheses and may evolve independently from specification layers.
-
----
-
-## Verification
-
-Verification scripts are provided to reproduce experimental behavior.
-
-Example:
-
-```
-npm run verify
-```
-
-Details are documented in the `/proof` directory.
 
 ---
 
