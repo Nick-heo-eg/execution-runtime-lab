@@ -1,5 +1,7 @@
 # Execution Runtime Lab
 
+**Role:** Runtime experimentation workspace separated from specification.
+
 > **Verifiable Execution Authority Boundary Reference Implementation**
 >
 > This repository demonstrates structural execution prevention.
